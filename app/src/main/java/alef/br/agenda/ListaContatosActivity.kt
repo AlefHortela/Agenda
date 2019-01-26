@@ -1,5 +1,7 @@
 package alef.br.agenda
 
+import alef.br.db.Contato
+import alef.br.db.ContatoRepository
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity;
@@ -14,20 +16,20 @@ import android.content.Intent;
 
 class ListaContatosActivity : AppCompatActivity() {
 
+    private var contatos:ArrayList<Contato>? = null
+    private var contatoSelecionado: Contato? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_lista_contatos);
-
+        setContentView(R.layout.activity_lista_contatos)
         val myToolbar = toolbar
         myToolbar.setTitleTextColor(Color.WHITE)
         setSupportActionBar(myToolbar)
-
-        val contatos = arrayOf("Maria", "José", "Carlos")
-        val adapter
-                = ArrayAdapter(this, android.R.layout.simple_list_item_1,
+        contatos = ContatoRepository(this).findAll()
+        val adapter= ArrayAdapter(this, android.R.layout.simple_list_item_1,
                 contatos)
-        var listaContatos = lista;
-        listaContatos.setAdapter(adapter);
+        lista?.adapter = adapter
+        adapter.notifyDataSetChanged()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -57,6 +59,14 @@ class ListaContatosActivity : AppCompatActivity() {
             }
             else -> return super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        contatos = ContatoRepository(this).findAll()
+        val adapter= ArrayAdapter(this, android.R.layout.simple_list_item_1, contatos)
+        lista?.adapter = adapter
+        adapter.notifyDataSetChanged()
     }
 
 }
