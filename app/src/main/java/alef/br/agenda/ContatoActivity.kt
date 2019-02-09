@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.activity_contato.*
 import java.util.*
 import android.widget.EditText
 import android.widget.ImageView
-
+import alef.br.agenda.Constantes.dateFormatter
 
 
 import kotlinx.android.synthetic.main.activity_contato.*
@@ -24,7 +24,9 @@ class ContatoActivity : AppCompatActivity() {
     var cal = Calendar.getInstance()
     var datanascimento: Button? = null;
 
-    private var contato: ImageView? = null
+    private var contato : Contato? = null
+
+    private var contatoImage: ImageView? = null
     private var nome: EditText? = null
     private var endereco: EditText? = null
     private var telefone: EditText? = null
@@ -54,13 +56,13 @@ class ContatoActivity : AppCompatActivity() {
                 DatePickerDialog(this@ContatoActivity,
                         dateSetListener,
                         // set DatePickerDialog to point to today's date when it loads up
-                                cal.get(Calendar.YEAR),
+                        cal.get(Calendar.YEAR),
                         cal.get(Calendar.MONTH),
                         cal.get(Calendar.DAY_OF_MONTH)).show()
             }
         })
 
-        contato = imgContato
+        contatoImage = imgContato
         nome = txtNome
         endereco = txtEndereco
         telefone = txtTelefone
@@ -69,16 +71,20 @@ class ContatoActivity : AppCompatActivity() {
         cadastro = btnCadastro
 
         btnCadastro?.setOnClickListener {
-            val contato = Contato(
-                    0,
-                    null,
-                    txtNome?.text.toString(),
-                    txtEndereco?.text.toString(),
-                    txtTelefone?.text.toString().toLong(),
-                    cal.timeInMillis,
-                    txtEmail?.text.toString(),
-                    txtSite?.text.toString())
-            ContatoRepository(this).create(contato)
+
+            contato?.nome = txtNome?.text.toString()
+            contato?.endereco = txtEndereco?.text.toString()
+            contato?.telefone = txtTelefone?.text.toString().toLong()
+            contato?.dataNascimento = cal.timeInMillis
+            contato?.email = txtEmail?.text.toString()
+            contato?.site = txtSite?.text.toString()
+
+            if(contato?.id == 0L){
+                ContatoRepository(this).create(contato!!)
+            }else{
+                ContatoRepository(this).update(contato!!)
+            }
+
             finish()
         }
 
@@ -90,4 +96,30 @@ class ContatoActivity : AppCompatActivity() {
         datanascimento!!.text = sdf.format(cal.getTime())
     }
 
+    override fun onResume() {
+        super.onResume()
+        val intent = intent
+        if (intent != null) {
+            if (intent.getSerializableExtra("contato") != null) {
+                contato = intent.getSerializableExtra("contato") as Contato
+
+                txtNome?.setText(contato?.nome)
+                txtEndereco?.setText(contato?.endereco)
+                txtTelefone.setText(contato?.telefone.toString())
+
+                if (contato?.dataNascimento != null) {
+                    datanascimento?.setText(dateFormatter?.format(Date(contato?.dataNascimento!!)))
+                } else {
+                    datanascimento?.setText(dateFormatter?.format(Date()))
+                }
+
+                txtEmail.setText(contato?.email)
+                txtSite?.setText(contato?.site)
+            } else {
+                contato = Contato()
+            }
+        }
+
+
+    }
 }

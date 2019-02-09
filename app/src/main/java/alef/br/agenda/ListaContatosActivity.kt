@@ -30,6 +30,13 @@ class ListaContatosActivity : AppCompatActivity() {
                 contatos)
         lista?.adapter = adapter
         adapter.notifyDataSetChanged()
+
+        lista.setOnItemClickListener { _, _, position, id ->
+            val intent = Intent(this@ListaContatosActivity, ContatoActivity::class.java)
+            intent.putExtra("contato", contatos?.get(position))
+            startActivity(intent)
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
