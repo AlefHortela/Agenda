@@ -91,7 +91,8 @@ class ContatoRepository (val context: Context){
     }
 
     fun delete(id: Long) = context.database.use {
-        delete(CONTATOS_TABLE_NAME, whereClause = "id = {contatoId}")
+        delete(CONTATOS_TABLE_NAME, "id = {contatoId}", "contatoId" to id)
+
     }
 
 }
